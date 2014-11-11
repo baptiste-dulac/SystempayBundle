@@ -1,0 +1,7 @@
+{
+    "name": "baptiste-dulac/SystempayBundle",
+    "description": "Use this bundle to handle payment with Caisse d'épargne or Banque Populaire (French banks)",
+    "require": {
+        "php": ">=5.3.0",
+    }
+}
