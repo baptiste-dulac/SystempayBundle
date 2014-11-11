@@ -1,10 +1,10 @@
 # SystempayBundle
 This bundle allows to implement a Payment Solution working with [SystemPay](https://paiement.systempay.fr/html/) for your symfony projet.
-# Note
+## Note
 This bundle is not yet fully operationnal. Please do not use it ;)
 
-# Installation
-## Step 1 : Import using Composer
+## Installation
+### Step 1 : Import using Composer
 Using composer :
 ```json
 {
@@ -14,7 +14,7 @@ Using composer :
 }
 ```
 
-## Step 2 : Enable the plugin
+### Step 2 : Enable the plugin
 Enable the bundle in the kernel:
 ```php
 <?php
@@ -29,4 +29,4 @@ public function registerBundles()
 }
 ```
 
-## Step 3 : Configure the bundle
+### Step 3 : Configure the bundle
