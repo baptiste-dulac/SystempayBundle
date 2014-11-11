@@ -24,9 +24,32 @@ public function registerBundles()
 {
     $bundles = array(
         // ...
-        new Tlconseil\SystempayBundle\SystempayBundle(),
+        new Tlconseil\SystempayBundle\TlconseilSystempayBundle(),
     );
 }
 ```
 
 ### Step 3 : Configure the bundle
+Available options :
+```json
+ # Debug values : ON / OFF
+    debug: ON
+    # Credentials
+    site_id: XXXXX
+    # Keys
+    key_dev: XXXXX
+    key_prod: XXXXX
+    # Return
+    url_return: http://www.example.com/payment_return
+    return_mode: GET
+    # Possible values for ctx_mode : TEST / PRODUCTION
+    ctx_mode: TEST
+    # Language
+    language: fr
+    # Success
+    redirect_success_timeout: 1
+    redirect_success_message: Redirection vers Les Annonces de la Seine dans quelques instants
+    # Error
+    redirect_error_timeout: 1
+    redirect_error_message: Redirection vers Les Annonces de la Seine dans quelques instants
+```
