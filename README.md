@@ -13,7 +13,7 @@ Using composer :
 ```json
 {
     "require": {
-        "baptiste-dulac/SystempayBundle": "master"
+        "baptiste-dulac/systempay-bundle": "master"
     }
 }
 ```
