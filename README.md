@@ -1,5 +1,9 @@
 # SystempayBundle
 This bundle allows to implement a Payment Solution working with [SystemPay](https://paiement.systempay.fr/html/) for your symfony projet.
+This payment solution uses Systempay. Systempay is a payment gateway proposed by the following bank companies :
+* Banque Populaire (Cyberplus)
+* Caisse d'épargne (SPPlus)
+
 ## Note
 This bundle is not yet fully operationnal. Please do not use it ;)
 
