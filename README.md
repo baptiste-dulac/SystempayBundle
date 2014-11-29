@@ -66,21 +66,63 @@ Optionnal fields (here the fields have their default values) :
 
 ## How to use
 ### Controller
-First, you need to generate a payment form. All mandatory fields are used with their default value. You can configure all the common fields of your transactions in the `app/config/config.yml` file.
-The method `->init()` allows you to specify the amount and the currency of the transaction.
-The method `->setOptionnalFields(array())` allows you to specify any field for the System Pay Gateway.
-```php
-    $systempay = $this->get('tlconseil.systempay')
-        ->init()
-        ->setOptionnalFields(array())
-    ;
+#### Create a Transaction
+To intantiate a new Transaction, you need to create an action in one of your controller and call the `tlconseil_systempay` serivce. All mandatory fields are used with their default value. You can configure all the common fields of your transactions in the `app/config/config.yml` file.
 
-    return array(
-        'paymentUrl' => $systempay->getPaymentUrl(),
-        'fields' => $systempay->getResponse(),
-    );
+To see what fields are available see : [Systempay Documentation](https://www.ocl.natixis.com/systempay/public/uploads/fichier/Guide_d%27implementation_formulaire_Paiement20122013163915.pdf) (Chapter 2.3.1)
+
+##### Service Method
+* `init($currency = 978, $amount = 1000)` allows you to specify the amount and the currency of the transaction.
+* `setOptionnalFields(array)` allows you to specify any field for the System Pay Gateway.
+
+##### Example
+```php
+    /**
+     * @Route("/initiate-payment/id-{id}", name="pay_online")
+     * @Template()
+     */
+    public function payOnlineAction($id)
+    {
+        // ...
+        $systempay = $this->get('tlconseil.systempay')
+            ->init()
+            ->setOptionnalFields(array(
+                'shop_url' => 'http://www.example.com'
+            ))
+        ;
+
+        return array(
+            'paymentUrl' => $systempay->getPaymentUrl(),
+            'fields' => $systempay->getResponse(),
+        );
+    }
 ```
+#### Handle the response from the server
+This route will be called by the Systempay service to update you about the payment status. This is the only way to correctly handle payment verfication.
+
+##### Service Method
+* `responseHandler(Request)` is used to update the transaction status (in database)
+
+##### Example
+```php
+    /**
+     * @Route("/payment/verification")
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function paymentVerificationAction(Request $request)
+    {
+        // ...
+        $this->get('tlconseil.systempay')
+            ->responseHandler($request)
+        ;
+
+        return new Response();
+    }
+```
+
 ### Template
+This is how the template for the `payOnlineAction()` may look like. You can use the `systempayForm` twig function to automatically generate the form based on the fields created in the service and returned by the `getResponse()` function.
 ```twig
     <div class="row">
         <div class="col-sm-8 col-sm-offset-2">
