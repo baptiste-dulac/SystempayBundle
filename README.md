@@ -74,3 +74,10 @@ Optionnal fields (here the fields have their default values) :
     ;
 ```
 ### Template
+```html
+    <div class="fa fa-spin fa-" font-style="">
+        <form action="{{ paymentUrl }}" method="POST">
+            {{ systempayForm(form) }}
+        </form>
+    </div>
+```
