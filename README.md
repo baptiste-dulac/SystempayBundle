@@ -74,7 +74,7 @@ Optionnal fields (here the fields have their default values) :
     ;
 ```
 ### Template
-```html
+```twig
     <div class="fa fa-spin fa-" font-style="">
         <form action="{{ paymentUrl }}" method="POST">
             {{ systempayForm(form) }}
