@@ -4,6 +4,9 @@ This payment solution uses Systempay. Systempay is a payment gateway proposed by
 * Banque Populaire (Cyberplus)
 * Caisse d'épargne (SPPlus)
 
+[![Total Downloads](https://poser.pugx.org/baptiste-dulac/systempay-bundle/downloads.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
+[![Latest Stable Version](https://poser.pugx.org/baptiste-dulac/systempay-bundle/v/stable.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
+
 ## Note
 This bundle is not yet fully operationnal. Please do not use it ;)
 
