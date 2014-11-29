@@ -63,3 +63,14 @@ Optionnal fields (here the fields have their default values) :
     redirect_error_timeout: 1
     redirect_error_message: Redirection vers Les Annonces de la Seine dans quelques instants
 ```
+
+## How to use
+### Controller
+
+```php
+    $systempay = $this->get('tlconseil.systempay')
+        ->init()
+        ->setOptionnalFields(array())
+    ;
+```
+### Template
