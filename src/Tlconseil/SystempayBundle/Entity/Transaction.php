@@ -21,10 +21,10 @@ class Transaction
     private $id;
 
     /**
-     * @var int
-     * @ORM\Column(name="status_code", type="integer")
+     * @var string
+     * @ORM\Column(name="status_code", type="string", length=255, nullable=true)
      */
-    private $statusCode;
+    private $status;
 
     /**
      * @var int
@@ -181,19 +181,19 @@ class Transaction
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getStatusCode()
+    public function getStatus()
     {
-        return $this->statusCode;
+        return $this->status;
     }
 
     /**
-     * @param int $statusCode
+     * @param string $status
      */
-    public function setStatusCode($statusCode)
+    public function setStatus($status)
     {
-        $this->statusCode = $statusCode;
+        $this->status = $status;
     }
 
     /**

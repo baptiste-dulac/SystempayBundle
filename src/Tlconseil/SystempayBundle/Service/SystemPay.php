@@ -74,7 +74,7 @@ class SystemPay
         $transaction->setUpdatedAt(new \DateTime());
         $transaction->setPaid(false);
         $transaction->setRefunded(false);
-        $transaction->setStatusCode(-1);
+        $transaction->setStatus("");
         $this->entityManager->persist($transaction);
         $this->entityManager->flush();
         return $transaction;
@@ -115,24 +115,57 @@ class SystemPay
         return $this;
     }
 
-
+    /**
+     * @return array
+     */
     public function getResponse()
     {
         $this->mandatoryFields['signature'] = $this->getSignature();
         return $this->mandatoryFields;
     }
 
+    /**
+     * @param Request $request
+     * @return bool
+     */
     public function responseHandler(Request $request)
     {
-        file_put_contents(__DIR__.'/../Resources/test.txt', json_encode($request->request->all()));
-        $transactionId = $request->get('vads_trans_id');
-        $transaction = $this->entityManager->getRepository('TlconseilSystempayBundle:Transaction')->find($transactionId);
-        $transaction->setLogResponse(json_encode($request->request->all()));
+        $query = $request->request->all();
+
+        // Check signature
+        if (!empty($query['signature']))
+        {
+            $signature = $query['signature'];
+            unset ($query['signature']);
+            if ($signature == $this->getSignature($query))
+            {
+                $transaction = $this->entityManager->getRepository('TlconseilSystempayBundle:Transaction')->find($query['vads_trans_id']);
+                $transaction->setStatus($query['vads_trans_status']);
+                if ($query['vads_trans_status'] == "AUTHORISED")
+                    $transaction->setPaid(true);
+                $transaction->setUpdatedAt(new \DateTime());
+                $transaction->setLogResponse(json_encode($query));
+                $this->entityManager->flush();
+                return true;
+            }
+        }
+        return false;
     }
 
+    /**
+     * @return string
+     */
     public function getPaymentUrl()
     {
         return $this->paymentUrl;
+    }
+
+    /**
+     * @return Transaction
+     */
+    public function getTransaction()
+    {
+        return $this->transaction;
     }
 
     /**
@@ -147,12 +180,17 @@ class SystemPay
         return $newTab;
     }
 
-    private function getSignature()
+    /**
+     * @param null $fields
+     * @return string
+     */
+    private function getSignature($fields = null)
     {
-        $this->mandatoryFields = $this->setPrefixToFields($this->mandatoryFields);
-        ksort($this->mandatoryFields);
+        if (!$fields)
+            $fields = $this->mandatoryFields = $this->setPrefixToFields($this->mandatoryFields);
+        ksort($fields);
         $contenu_signature = "";
-        foreach ($this->mandatoryFields as $field => $value)
+        foreach ($fields as $field => $value)
                 $contenu_signature .= $value."+";
         $contenu_signature .= $this->key;
         $signature = sha1($contenu_signature);
