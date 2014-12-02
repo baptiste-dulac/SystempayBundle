@@ -53,7 +53,7 @@ class SystemPay
         $this->entityManager = $entityManager;
         foreach ($this->mandatoryFields as $field => $value)
             $this->mandatoryFields[$field] = $container->getParameter(sprintf('tlconseil_systempay.%s', $field));
-        if ($this->mandatoryFields['ctx_mode'])
+        if ($this->mandatoryFields['ctx_mode'] == "TEST")
             $this->key = $container->getParameter('tlconseil_systempay.key_dev');
         else
             $this->key = $container->getParameter('tlconseil_systempay.key_prod');
