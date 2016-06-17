@@ -2,7 +2,7 @@ services:
 
     tlconseil.systempay:
         class: Tlconseil\SystempayBundle\Service\SystemPay
-        arguments: [@doctrine.orm.entity_manager, @service_container]
+        arguments: ['@doctrine.orm.entity_manager', '@service_container']
 
     tlconseil.systempay.twig_extension:
         class: Tlconseil\SystempayBundle\Twig\TwigExtension
