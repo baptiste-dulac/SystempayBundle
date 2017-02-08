@@ -139,7 +139,7 @@ class SystemPay
             unset ($query['signature']);
             if ($signature == $this->getSignature($query))
             {
-                $transaction = $this->entityManager->getRepository('TlconseilSystempayBundle:Transaction')->find($query['vads_trans_id']);
+                $transaction = $this->findTransaction(request);
                 $transaction->setStatus($query['vads_trans_status']);
                 if ($query['vads_trans_status'] == "AUTHORISED")
                     $transaction->setPaid(true);
@@ -150,6 +150,17 @@ class SystemPay
             }
         }
         return false;
+    }
+    
+    /**
+     * @return Transaction
+     */
+    public function findTransaction(Request $request)
+    {
+        $query = $request->request->all();
+        $this->transaction = $this->entityManager->getRepository('TlconseilSystempayBundle:Transaction')->find($query['vads_trans_id']);
+        
+        return $this->transaction;
     }
 
     /**
