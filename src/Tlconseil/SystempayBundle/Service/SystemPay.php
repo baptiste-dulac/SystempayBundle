@@ -139,7 +139,7 @@ class SystemPay
             unset ($query['signature']);
             if ($signature == $this->getSignature($query))
             {
-                $transaction = $this->findTransaction(request);
+                $transaction = $this->findTransaction($request);
                 $transaction->setStatus($query['vads_trans_status']);
                 if ($query['vads_trans_status'] == "AUTHORISED")
                     $transaction->setPaid(true);
