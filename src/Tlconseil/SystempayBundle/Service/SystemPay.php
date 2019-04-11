@@ -110,7 +110,7 @@ class SystemPay
     public function setOptionnalFields($fields)
     {
         foreach ($fields as $field => $value)
-            if (empty($this->mandatoryFields[$field]))
+            if (empty($this->mandatoryFields[$field]) || $field == 'payment_config')
                 $this->mandatoryFields[$field] = $value;
         return $this;
     }
