@@ -1,5 +1,8 @@
 # SystempayBundle
 
+[![Total Downloads](https://poser.pugx.org/baptiste-dulac/systempay-bundle/downloads.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
+[![Latest Stable Version](https://poser.pugx.org/baptiste-dulac/systempay-bundle/v/stable.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
+
 This bundle integrates [SystemPay](https://paiement.systempay.fr/html/) to your symfony project. Systempay is a payment gateway developped by Natixis & Lyra Network. 
 
 This bundle only supports the "API Formulaire" for now. [See official Systempay documentation](https://paiement.systempay.fr/doc/fr-FR/form-payment/quick-start-guide/tla1427193445290.pdf) (PDF) 
@@ -16,12 +19,9 @@ Supported banks and platforms seems to be (as of Oct. 2019):
 
 Source : [natixis.com](https://www.ocl.natixis.com/systempay/syshome/index/id/1)
 
-[![Total Downloads](https://poser.pugx.org/baptiste-dulac/systempay-bundle/downloads.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
-[![Latest Stable Version](https://poser.pugx.org/baptiste-dulac/systempay-bundle/v/stable.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
-
 ## Requirements
-* PHP >=7.2.0
-* Symfony >=4.1
+* PHP 7.1
+* Symfony 4
     * Twig
     * Doctrine 
 
@@ -29,7 +29,7 @@ Source : [natixis.com](https://www.ocl.natixis.com/systempay/syshome/index/id/1)
 ### Install using Composer
 Using composer
 ```bash
-composer require lone-studio/systempay-bundle
+composer require baptiste-dulac/systempay-bundle
 ```
 
 ### Configure the bundle
