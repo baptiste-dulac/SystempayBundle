@@ -1,0 +1,10 @@
+services:
+
+    Lone\SystempayBundle\Service\SystempayService:
+        arguments: ['@Symfony\Component\DependencyInjection\ContainerInterface']
+        public: true
+
+    Lone\SystempayBundle\Twig\TwigExtension:
+        class: Lone\SystempayBundle\Twig\TwigExtension
+        tags:
+            - { name: twig.extension }

@@ -1,142 +1,127 @@
 # SystempayBundle
-This bundle allows to implement a Payment Solution working with [SystemPay](https://paiement.systempay.fr/html/) for your symfony projet.
-This payment solution uses Systempay. Systempay is a payment gateway proposed by the following bank companies :
-* Banque Populaire (Cyberplus)
-* Caisse d'épargne (SPPlus)
+
+This bundle integrates [SystemPay](https://paiement.systempay.fr/html/) to your symfony project. Systempay is a payment gateway developped by Natixis & Lyra Network. 
+
+This bundle only supports the "API Formulaire" for now. [See official Systempay documentation](https://paiement.systempay.fr/doc/fr-FR/form-payment/quick-start-guide/tla1427193445290.pdf) (PDF) 
+
+Supported banks and platforms seems to be (as of Oct. 2019):
+* **Banque Populaire** : Cyberplus Paiement, Paiement Express, Direct et Proche, & Direct et Bon
+* **Caisse d’Epargne** : SP Plus et Jepaieenligne
+* Natixis : Conexens
+* Crédit Coopératif : SP Plus et Jepaieenligne
+* Banque BCP : SP Plus et Jepaieenligne
+* Banque Palatine : P@yby
+* Banques filiales de BPCE : E-commerce
+* Banques partenaires : Moneteam
+
+Source : [natixis.com](https://www.ocl.natixis.com/systempay/syshome/index/id/1)
 
 [![Total Downloads](https://poser.pugx.org/baptiste-dulac/systempay-bundle/downloads.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
 [![Latest Stable Version](https://poser.pugx.org/baptiste-dulac/systempay-bundle/v/stable.svg)](https://packagist.org/packages/baptiste-dulac/systempay-bundle)
 
+## Requirements
+* PHP >=7.2.0
+* Symfony >=4.1
+    * Twig
+    * Doctrine 
 
-## Installation
-### Step 1 : Import using Composer
-Using composer :
-```json
-{
-    "require": {
-        "baptiste-dulac/systempay-bundle": "master"
-    }
-}
+## How to use
+### Install using Composer
+Using composer
+```bash
+composer require lone-studio/systempay-bundle
 ```
 
-### Step 2 : Enable the plugin
-Enable the bundle in the kernel:
-```php
-<?php
-// app/AppKernel.php
+### Configure the bundle
 
-public function registerBundles()
-{
-    $bundles = array(
-        // ...
-        new Tlconseil\SystempayBundle\TlconseilSystempayBundle(),
-    );
-}
-```
 
-### Step 3 : Configure the bundle
-Mandatory fields :
 ```yaml
-tlconseil_systempay:
-    # Credentials
-    site_id: XXXXX
+systempay:
     # Keys
     key_dev: XXXXX
     key_prod: XXXXX
-    # Return
-    url_return: http://www.example.com/payment_return
+    hash_method: hmac_sha256 # Possible values are: sha1 / hmac_sha256
+    vads:
+        # Credentials
+        site_id: XXXXX
+        # Return
+        url_return: http://www.example.com/payment_return
+        # Debug values : ON / OFF
+        debug: ON
+        # Return mode
+        return_mode: GET
+        # Possible values for ctx_mode : TEST / PRODUCTION
+        ctx_mode: TEST
+        # Language
+        language: fr
 ```
 
-Optionnal fields (here the fields have their default values) :
-```yaml
-    # Debug values : ON / OFF
-    debug: ON
-    # Return mode
-    return_mode: GET
-    # Possible values for ctx_mode : TEST / PRODUCTION
-    ctx_mode: TEST
-    # Language
-    language: fr
-    # Success
-    redirect_success_timeout: 1
-    redirect_success_message: Redirection vers Les Annonces de la Seine dans quelques instants
-    # Error
-    redirect_error_timeout: 1
-    redirect_error_message: Redirection vers Les Annonces de la Seine dans quelques instants
-```
+### Database
 
-## How to use
-### Controller
-#### Create a Transaction
-To intantiate a new Transaction, you need to create an action in one of your controller and call the `tlconseil_systempay` serivce. All mandatory fields are used with their default value. You can configure all the common fields of your transactions in the `app/config/config.yml` file.
+This bundle comes with a pre-congifured abstract class called `AbtractTransaction` that must be extended and will be used to store individual transations.
+You have to extend `BDulac\Entity\AbstractTransaction` yourself and manage it in your controller or service
 
-To see what fields are available see : [Systempay Documentation](https://www.ocl.natixis.com/systempay/public/uploads/fichier/Guide_d%27implementation_formulaire_Paiement20122013163915.pdf) (Chapter 2.3.1)
-
-##### Service Method
-* `init($currency = 978, $amount = 1000)` allows you to specify the amount and the currency of the transaction.
-* `setOptionnalFields(array)` allows you to specify any field for the System Pay Gateway.
-
-##### Example
 ```php
-    /**
-     * @Route("/initiate-payment/id-{id}", name="pay_online")
-     * @Template()
-     */
-    public function payOnlineAction($id)
-    {
-        // ...
-        $systempay = $this->get('tlconseil.systempay')
-            ->init()
-            ->setOptionnalFields(array(
-                'shop_url' => 'http://www.example.com'
-            ))
-        ;
+<?php
 
-        return array(
-            'paymentUrl' => $systempay->getPaymentUrl(),
-            'fields' => $systempay->getResponse(),
-        );
-    }
+namespace App\Entity;
+
+use Lone\SystempayBundle\Entity\AbstractTransaction;
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * @ORM\Table(name="transactions")
+ * @ORM\Entity()
+ */
+class Transaction extends AbstractTransaction {
+ 
+    // Your own logic here
+   
+}
+
 ```
+
+### Create a Transaction
+To intantiate a new Transaction, simply create a Transaction.
+
+`` new Transaction($amount, $currency) ``
+
+You can then call `init($currency = 978, $amount = 1000)` on `Lone\SystempayBundle\Service\SystemPayService`. It will fill out the fields for you.
+
+For a given transaction, use the `setOptionnalFields(array)` method to specify any field that will be send to the System Pay Gateway.
+
+```php
+  
+```
+
 #### Handle the response from the server
 This route will be called by the Systempay service to update you about the payment status. This is the only way to correctly handle payment verfication.
 
 ##### Service Method
+
 * `responseHandler(Request)` is used to update the transaction status (in database)
 
 ##### Example
+
 ```php
-    /**
-     * @Route("/payment/verification")
-     * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
-     */
-    public function paymentVerificationAction(Request $request)
-    {
-        // ...
-        $this->get('tlconseil.systempay')
-            ->responseHandler($request)
-        ;
-
-        return new Response();
-    }
+   // TODO
 ```
 
-### Template
+### Templating
+
 This is how the template for the `payOnlineAction()` may look like. You can use the `systempayForm` twig function to automatically generate the form based on the fields created in the service and returned by the `getResponse()` function.
+
 ```twig
-    <div class="row">
-        <div class="col-sm-8 col-sm-offset-2">
-            <div class="widget widget-white text-center">
-                <i class="fa fa-refresh fa-spin margin-top margin-bottom" style="font-size: 50px"></i>
-                <h3>Redirection vers la page de paiement en cours...</h3>
-                <form action="{{ paymentUrl }}" method="POST" id="systempay-form">
-                    {{ systempayForm(fields) | raw }}
-                </form>
-            </div>
-        </div>
-    </div>
-    <script type="text/javascript">
-        document.getElementById('systempay-form').submit();
-    </script>
+   // TODO
 ```
+
+
+## Changes from 0.x
+
+TODO
+
+## Copyright
+
+You can use freely this bundle.
+
+Supported by [Lone.studio](https://lone.studio)
