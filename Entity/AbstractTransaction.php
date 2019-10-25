@@ -2,7 +2,7 @@
 
 namespace Lone\SystempayBundle\Entity;
 
-use Lone\SystempayBundle\Model\TransactionStatus;
+use Lone\SystempayBundle\Model\PaymentStatus;
 use \DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -21,21 +21,21 @@ abstract class AbstractTransaction
 
     /**
      * @var string
-     * @ORM\Column(name="systempay_transaction_id", length=10, type="string")
+     * @ORM\Column(name="systempay_transaction_id", length=7, type="string")
      */
     protected $systempayTransactionId;
 
     /**
      * @var string
-     * @ORM\Column(name="systempay_transaction_id", type="string", nullable=true)
+     * @ORM\Column(name="transaction_uuid", type="string", nullable=true)
      */
     protected $transactionUuid;
 
     /**
      * @var string
-     * @ORM\Column(name="status_code", type="string", length=255, nullable=true)
+     * @ORM\Column(name="status_code", type="string", length=75)
      */
-    protected $status = TransactionStatus::PENDING;
+    protected $status = PaymentStatus::PENDING;
 
     /**
      * @var int
@@ -81,6 +81,7 @@ abstract class AbstractTransaction
 
     /**
      * Create a new transaction, default currency is 978 => EUR.
+     * @param string $systempayTransactionId
      * @param int $amount
      * @param int $currency
      */
@@ -170,6 +171,16 @@ abstract class AbstractTransaction
     public function systempayTransactionId(): ?string
     {
         return $this->systempayTransactionId;
+    }
+
+    public function transactionUuid(): ?string
+    {
+        return $this->transactionUuid;
+    }
+
+    public function setTransactionUuid(string $transactionUuid): void
+    {
+        $this->transactionUuid = $transactionUuid;
     }
 
 }

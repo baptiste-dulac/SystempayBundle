@@ -32,7 +32,6 @@ class SystempayService
         'url_return' => null,
     ];
 
-
     public function __construct(ContainerInterface $container)
     {
         $this->hash = $container->getParameter('systempay.hash_method');
@@ -56,6 +55,10 @@ class SystempayService
         );
     }
 
+    /**
+     * Setting up the mandatory fields
+     * @param AbstractTransaction $transaction
+     */
     public function init(AbstractTransaction $transaction): void
     {
         if ($transaction->systempayTransactionId() === null) {
@@ -95,33 +98,41 @@ class SystempayService
         return $fields;
     }
 
-    public function responseHandler(AbstractTransaction $transaction, Request $request): bool
+    /**
+     * Update the field
+     * @param AbstractTransaction $transaction
+     * @param Request $request
+     * @return AbstractTransaction
+     */
+    public function responseHandler(AbstractTransaction $transaction, Request $request): AbstractTransaction
     {
         $query = $request->request->all();
+        $fields = $query;
+        unset($fields['signature']);
+        $signature = $query['signature'] ?? null;
 
         // Check signature
-        if (!empty($query['signature']))
-        {
-            $signature = $query['signature'];
-            unset ($query['signature']);
-            if ($signature === $this->getSignature($query))
-            {
-                // Signature is valid, update transaction
-                $transaction->changeStatus($query['vads_trans_status']);
-                $transaction->setLogResponse(base64_encode(json_encode($query)));
-
-                switch ($query['vads_trans_status']) {
-                    case PaymentStatus::AUTHORISED:
-                        $transaction->pay();
-                        return true;
-                    case PaymentStatus::REFUNDED:
-                        $transaction->refund();
-                        return true;
-                }
-            }
+        if ($signature === null || $signature !== $this->getSignature($fields)) {
             throw new InvalidArgumentException("Signature is not valid");
         }
-        throw new InvalidArgumentException("Signature field is empty");
+
+        $status = $fields['vads_trans_status'];
+
+        // Signature is valid, update transaction
+        $transaction->changeStatus($status);
+        $transaction->setLogResponse(base64_encode(json_encode($fields)));
+
+        // Payment is valid
+        if (PaymentStatus::isValidStatus($status)) {
+            $transaction->pay();
+        }
+
+        // Pay has been cancelled by marchant
+        if ($status === PaymentStatus::CANCELLED) {
+            $transaction->refund();
+        }
+
+        return $transaction;
     }
 
     /**
@@ -158,19 +169,21 @@ class SystempayService
     private function getSignature(array $fields)
     {
         ksort($fields);
-        $signature = [];
+        $signatureFields = [];
         foreach ($fields as $field => $value) {
             if (substr($field, 0, 5) === 'vads_') {
-                $signature[] =  $value;
+                $signatureFields[] =  $value;
             }
         }
-        $signature[] = $this->key;
+        $signatureFields[] = $this->key;
 
+        // Form the signature by concatenating the fields
+        $signature = implode('+', $signatureFields);
 
-        if (1 == 1) {
-            return base64_encode(hash_hmac('sha256', implode('+', $signature), $this->key, true));
+        if ($this->hash === self::HMAC_SHA256) {
+            return base64_encode(hash_hmac('sha256', $signature, $this->key, true));
         }
 
-        return sha1(implode('+', $signature));
+        return sha1($signature);
     }
 }
